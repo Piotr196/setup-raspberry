@@ -1,0 +1,12 @@
+cups_printer_default_state: "present"
+cups_printer_default_report_ipp_supplies: True
+cups_printer_default_report_snmp_supplies: True
+cups_printer_default_is_shared: True
+cups_printer_default_enabled: True
+cups_printer_default_assign_cups_policy: "default"
+
+cups_class_default_state: "present"
+cups_class_default_is_shared: True
+
+working_path: /home/pi
+gutenprint_path: "{{working_path}}/gutenprint-5.3.4-2021-10-15T01-00-0b8c6c6e"

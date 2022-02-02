@@ -1,0 +1,23 @@
+---
+
+- hosts: raspi
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars_files:
+    - vars/singleplatform-eng.users/main.yml
+    - vars/robertdebock.cups/main.yml
+    - vars/devsec.ssh_hardening/main.yml
+  collections:
+    - devsec.hardening
+  roles:
+    - bootstrap
+#    - debug
+#    - pihole
+#    - robertdebock.cups
+#    - cups_add_printer
+#    - scanner
+#    - home_assistant
+#    - hacs
+    - ssh_hardening
+    - geerlingguy.samba

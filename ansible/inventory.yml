@@ -1,0 +1,11 @@
+all:
+  vars:
+    ansible_connection: ssh
+#    ansible_user should be set by extra_vars
+  children:
+    vm:
+      hosts:
+        192.168.56.102:
+    raspi:
+      hosts:
+        192.168.0.102:

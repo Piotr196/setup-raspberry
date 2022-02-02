@@ -1,0 +1,84 @@
+- name: Install sane
+  ansible.builtin.package:
+    name:
+      - sane
+    state: latest
+
+- name: find scanner
+  command: sane-find-scanner
+
+- name: Add user saned with primary group of 'lp'
+  ansible.builtin.user:
+    name: saned
+    group: lp
+
+- name: Create a libsane.rules file if it does not exist
+  copy:
+    content: ""
+    dest: /etc/udev/rules.d/55-libsane.rules
+    force: no
+    owner: root
+    mode: 0755
+
+- name: Make sure device is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/udev/rules.d/55-libsane.rules
+    state: present
+    line: "SYSFS{idVendor}==\"{{vendor_id}}\", MODE=\"0666\", GROUP=\"scanner\", ENV{libsane_matched}=\"yes\""
+
+- name: Make sure device is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/sane.d/epson.conf
+    state: present
+    line: "usb 0x{{vendor_id}} 0x{{product_id}}"
+
+- name: Make sure device is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/sane.d/epson2.conf
+    state: present
+    line: "usb 0x{{vendor_id}} 0x{{product_id}}"
+
+- name: Copy saned.socket
+  ansible.builtin.copy:
+    src: saned.socket
+    dest: /etc/systemd/system/saned.socket
+
+- name: Copy saned.service
+  ansible.builtin.copy:
+    src: saned@.service
+    dest: /etc/systemd/system/saned@.service
+
+- name: Make sure autorun is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/default/saned
+    state: present
+    regexp: "RUN=.*"
+    line: "RUN=yes"
+
+- name: Make sure LAN mask is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/sane.d/saned.conf
+    state: present
+    line: "192.168.0.0/24"
+
+- name: Start service saned.socket
+  ansible.builtin.systemd:
+    name: saned.socket
+    state: started
+
+- name: Enable service saned.socket
+  ansible.builtin.systemd:
+    name: saned.socket
+    enabled: yes
+
+- name: Make sure device connect timeout is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/sane.d/net.conf
+    state: present
+    line: "connect_timeout = 60"
+
+- name: Make sure scanner server ip is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/sane.d/net.conf
+    state: present
+    line: "192.168.0.102"

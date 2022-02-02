@@ -1,0 +1,9 @@
+roles:
+  - name: singleplatform-eng.users
+  - name: robertdebock.cups
+  - name: geerlingguy.docker_arm
+  - name: geerlingguy.pip
+  - name: geerlingguy.samba
+#  - name: robertdebock.bootstrap
+collections:
+  - name: devsec.hardening

@@ -1,0 +1,59 @@
+- name: Install gutenprint build requirements
+  ansible.builtin.package:
+    name:
+      - libusb-1.0-0-dev
+      - libcups2-dev
+      - printer-driver-escpr
+      - cups-filters
+    state: latest
+
+- name: Download gutenprint
+  get_url:
+    url: "https://master.dl.sourceforge.net/project/gimp-print/snapshots/gutenprint-5.3.4-2021-10-15T01-00-0b8c6c6e.tar.xz?viasf=1"
+    dest: "{{gutenprint_path}}.tar.xz"
+    mode: '0777'
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{gutenprint_path}}"
+    state: directory
+    mode: '0755'
+
+- name: Unarchive a file that is already on the remote machine
+  ansible.builtin.unarchive:
+    src: "{{gutenprint_path}}.tar.xz"
+    dest: "{{gutenprint_path}}"
+    remote_src: yes
+
+- name: configure make
+  command: chdir={{gutenprint_path}} ./configure --without-doc
+
+- name: Run 'install' target as root
+  make:
+    chdir: "{{gutenprint_path}}"
+    target: install
+  become: yes
+
+- name: generate new ppds
+  command: cups-genppdupdate
+
+- name: Copy a printers.conf
+  ansible.builtin.copy:
+    src: printers.conf
+    dest: /etc/cups/
+
+- name: Copy EPSON_L382_Series ppd
+  ansible.builtin.copy:
+    src: EPSON_L382_Series.ppd
+    dest: /etc/cups/ppd/
+
+- name: Make sure device is present in configuration
+  ansible.builtin.lineinfile:
+    path: /etc/cups/cupsd.conf
+    state: present
+    line: "Port 631"
+
+- name: Restart service cups
+  ansible.builtin.service:
+    name: cups
+    state: restarted
