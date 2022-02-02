@@ -1,0 +1,7 @@
+pihole_admin_password: "admin"
+dns_server1: 8.8.8.8
+dns_server2: 8.8.4.4
+raspberry_user: pi
+pip_package: python3-pip
+pip_install_packages:
+  - name: docker
